@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+select option:checked {
+  background-color: #E3D5C3 !important;
+  color: #5B4636 !important;
+}
+
+select option:hover {
+  background-color: #F5EFE6;
+  color: #5B4636;
+}
+
+.swal2-container {
+  z-index: 2000 !important;
+}
