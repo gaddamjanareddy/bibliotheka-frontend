@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useUser } from "../context/UserContext";
+import { Skeleton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
   AddCircleOutline,
@@ -10,25 +12,81 @@ import {
   EmojiEvents,
   TrendingUp,
 } from "@mui/icons-material"; // Keeping icons, but layout is pure Tailwind
-import { jwtDecode } from "jwt-decode";
 import BookFormModal from "../Components/BookFormModal";
 import { motion } from "framer-motion";
+
+const HomeSkeleton = () => {
+  return (
+    <div className="bg-[#FCF9F5] min-h-screen pb-20 overflow-x-hidden">
+      
+      {/* HERO SKELETON */}
+      <section className="bg-[#2C1E12] pt-24 pb-40 px-6 rounded-b-[60px] md:rounded-b-[100px]">
+        <div className="max-w-7xl mx-auto text-center">
+          <Skeleton
+            variant="text"
+            width={180}
+            height={20}
+            sx={{ bgcolor: "rgba(255,255,255,0.2)", mx: "auto" }}
+          />
+          <Skeleton
+            variant="text"
+            width={500}
+            height={80}
+            sx={{ bgcolor: "rgba(255,255,255,0.15)", mx: "auto", mt: 2 }}
+          />
+          <Skeleton
+            variant="text"
+            width={380}
+            height={60}
+            sx={{ bgcolor: "rgba(255,255,255,0.1)", mx: "auto" }}
+          />
+
+          <div className="flex justify-center gap-4 mt-10">
+            <Skeleton variant="rounded" width={220} height={56} />
+            <Skeleton variant="rounded" width={220} height={56} />
+          </div>
+        </div>
+      </section>
+
+      {/* DASHBOARD GRID SKELETON */}
+      <div className="max-w-7xl mx-auto px-6 -mt-20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <Skeleton className="md:col-span-8 h-[350px] rounded-[40px]" />
+          <Skeleton className="md:col-span-4 h-[350px] rounded-[40px]" />
+          <Skeleton className="md:col-span-4 h-[300px] rounded-[40px]" />
+          <Skeleton className="md:col-span-8 h-[300px] rounded-[40px]" />
+        </div>
+      </div>
+
+      {/* RECENT ACTIVITY */}
+      <div className="max-w-7xl mx-auto px-6 mt-16">
+        <Skeleton width={260} height={40} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
+          {[1, 2, 3].map(i => (
+            <Skeleton key={i} height={120} className="rounded-3xl" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const Home = () => {
   const navigate = useNavigate();
   const [openBookModal, setOpenBookModal] = useState(false);
+  const { userLoading, libraryLoading, user } = useUser();
 
   const token = localStorage.getItem("token");
-  let loggedInUser = { username: "Guest" };
+  // let loggedInUser = { username: "Guest" };
+const loggedInUser = { username: user?.username || "Reader" };
 
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-      loggedInUser = { username: decoded.username || "Reader" };
-    } catch (e) {
-      console.error("Token error");
-    }
-  }
+
+  if (userLoading || libraryLoading) {
+  return <HomeSkeleton />;
+}
+
+
 
   return (
     <div className="bg-[#FCF9F5] min-h-screen pb-20 overflow-x-hidden">

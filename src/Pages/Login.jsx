@@ -10,50 +10,57 @@ const Login = () => {
   const { fetchUser, fetchLibraryIds } = useUser();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(""); 
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const res = await axiosInstance.post("/auth/login", formData);
-      
-      if (!res.data.token) {
-        setError("No token received");
-        return;
-      }
-      
-      // 1. Save Token
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.role);
+  try {
+    const res = await axiosInstance.post("/auth/login", formData);
 
-      await fetchUser(); 
-      await fetchLibraryIds();
-
-      // 2. Notify App.jsx that auth state changed
-      window.dispatchEvent(new Event("authChange"));
-
-      // 3. Success Message
-      Swal.fire({
-        title: "Welcome Back",
-        text: "Entering your library...",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-        background: '#FCF9F5',
-        confirmButtonColor: '#5B4636'
-      });
-      
-      // 4. Redirect
-      navigate("/home");
-
-    } catch (err) {
-      setError(err.response?.data?.error || "Invalid credentials.");
+    if (!res.data.token) {
+      setError("No token received");
+      setLoading(false);
+      return;
     }
-  };
+
+    // Save token
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("role", res.data.role);
+
+    // Notify auth change
+    window.dispatchEvent(new Event("authChange"));
+
+    // Show success
+    Swal.fire({
+      title: "Welcome Back",
+      text: "Entering your library...",
+      icon: "success",
+      timer: 1200,
+      showConfirmButton: false,
+      background: "#FCF9F5",
+    });
+
+    // 🚀 Navigate immediately
+    navigate("/home");
+
+    // 🔁 Fetch data AFTER navigation (non-blocking)
+    fetchUser();
+    fetchLibraryIds();
+
+  } catch (err) {
+    setError(err.response?.data?.error || "Invalid credentials.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F5EFE6] to-[#E3D5C3] px-4">
@@ -106,6 +113,7 @@ const Login = () => {
           <Button
             fullWidth
             variant="contained"
+            disabled={loading}
             onClick={handleSubmit}
             sx={{
               mt: 3, py: 1.2,
@@ -116,7 +124,7 @@ const Login = () => {
               "&:hover": { backgroundColor: "#4A3A2E" },
             }}
           >
-            Enter Library
+            {loading ? "Entering..." : "Enter Library"}
           </Button>
 
           <Typography align="center" sx={{ mt: 3, fontSize: "0.85rem", color: "#7B6A55" }}>
