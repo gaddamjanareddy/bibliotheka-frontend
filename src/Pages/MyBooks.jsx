@@ -166,7 +166,6 @@ const MyBooks = ({ booksList, setBooksList }) => {
 
   const handleMenuOpen = (event, book) => {
     event.stopPropagation();
-    console.log("Menu Open Clicked", event.currentTarget);
     setAnchorEl(event.currentTarget);
     setActiveBook(book);
   };
